@@ -25,7 +25,6 @@ export const AuthProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }
     if (token) {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-      // TODO: Add user/me endpoint
       // Fetch user data using the token
       api.get('/users/me').then(response => {
         setUser(response.data);
@@ -44,10 +43,8 @@ export const AuthProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }
   };
 
   const signup = async (email: string, password: string, firstName: string, lastName: string) => {
-    const { user, session } = await apiSignup(email, password, firstName, lastName);
-    setUser(user);
-    localStorage.setItem('authToken', session.access_token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${session.access_token}`;
+    await apiSignup(email, password, firstName, lastName);
+    await login(email, password);
   };
 
   const logout = async () => {
