@@ -4,12 +4,15 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { Home } from './pages/Home';
+import './App.css';
 
 const PrivateRoute: React.FC<React.PropsWithChildren<{ path: string }>> = ({ children }) => {
   const { user } = useAuth();
   return user ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
+// TODO: Add chatroom operations: create new chatroom, delete chatroom, update chatroom
+// TODO: Create websocket client to handle chatrooms
 const App: React.FC = () => {
   return (
     <AuthProvider>

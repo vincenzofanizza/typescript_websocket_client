@@ -10,13 +10,22 @@ export const api = axios.create({
   },
 });
 
-// Login function with credentials
+// Add a request interceptor to include the auth token
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('authToken');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Login function
 export const login = async (email: string, password: string) => {
   try {
     const response = await api.post('/auth/login', { email, password });
     return response.data;
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Login failed:', error);
     throw error;
   }
 };
@@ -27,17 +36,27 @@ export const signup = async (email: string, password: string, firstName: string,
     const response = await api.post('/auth/signup', { email, password, firstName, lastName });
     return response.data;
   } catch (error) {
-    console.error('Signup error:', error);
+    console.error('Signup failed:', error);
     throw error;
   }
 };
 
-// ? Add logout endpoint?
+// Logout function
 export const logout = async () => {
   try {
-    localStorage.removeItem('authToken'); 
+    localStorage.removeItem('authToken');
   } catch (error) {
-    console.error('Logout error:', error);
+    console.error('Logout failed:', error);
+  }
+};
+
+// Fetch chatrooms function
+export const fetchChatrooms = async () => {
+  try {
+    const response = await api.get('/chatrooms');
+    return response.data;
+  } catch (error) {
+    console.error('Fetch chatrooms failed:', error);
     throw error;
   }
 };

@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-
+import { useNavigate, Link } from 'react-router-dom';
 
 export const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -16,7 +14,7 @@ export const LoginForm: React.FC = () => {
     setErrorMessage('');
     try {
       await login(email, password);
-      navigate('/'); // Redirect to home page after successful login
+      navigate('/');
     } catch (error) {
       setErrorMessage('Login failed. Please check your credentials and try again.');
       console.error('Login failed:', error);
@@ -24,8 +22,9 @@ export const LoginForm: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      {errorMessage && <div style={{ color: 'red', marginBottom: '10px' }}>{errorMessage}</div>}
+    <form onSubmit={handleSubmit} className="auth-form">
+      <h2>Login</h2>
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
       <input
         type="email"
         value={email}
@@ -42,7 +41,7 @@ export const LoginForm: React.FC = () => {
       />
       <button type="submit">Login</button>
       <p>
-        Don't have an account? <Link to="/signup">Signup here</Link>
+        Don't have an account? <Link to="/signup">Sign up here</Link>
       </p>
     </form>
   );

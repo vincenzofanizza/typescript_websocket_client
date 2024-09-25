@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 export const SignupForm: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -17,7 +16,7 @@ export const SignupForm: React.FC = () => {
     setErrorMessage('');
     try {
       await signup(email, password, firstName, lastName);
-      navigate('/'); // Redirect to home page after successful signup
+      navigate('/');
     } catch (error) {
       setErrorMessage('Signup failed. Please check your details and try again.');
       console.error('Signup failed:', error);
@@ -25,8 +24,9 @@ export const SignupForm: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      {errorMessage && <div style={{ color: 'red', marginBottom: '10px' }}>{errorMessage}</div>}
+    <form onSubmit={handleSubmit} className="auth-form">
+      <h2>Sign Up</h2>
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
       <input
         type="text"
         value={firstName}
@@ -55,7 +55,7 @@ export const SignupForm: React.FC = () => {
         placeholder="Password"
         required
       />
-      <button type="submit">Signup</button>
+      <button type="submit">Sign Up</button>
       <p>
         Already have an account? <Link to="/login">Login here</Link>
       </p>
