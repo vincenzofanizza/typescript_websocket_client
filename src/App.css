@@ -252,3 +252,59 @@
   padding: 20px;
   box-sizing: border-box;
 }
+
+.chatroom-container {
+  display: flex;
+}
+
+.chatroom-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.chatroom-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.chatroom-header h2 {
+  flex: 1;
+}
+
+.chatroom-header button {
+  margin-left: 10px;
+}
+
+.chatroom-messages {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.message-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.message-item {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.message-input-form {
+  display: flex;
+}
+
+.message-input-form input {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.message-input-form button {
+  padding: 10px 20px;
+  font-size: 16px;
+}

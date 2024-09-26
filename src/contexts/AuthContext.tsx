@@ -1,9 +1,9 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { api, login as apiLogin, signup as apiSignup, logout as apiLogout } from '../services/api';
-import { User } from '../types/index';
+import { User as SupabaseUser } from '@supabase/supabase-js';
 
 interface AuthContextType {
-  user: User | null;
+  user: SupabaseUser | null;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -12,7 +12,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');

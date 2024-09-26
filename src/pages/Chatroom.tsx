@@ -1,15 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import { api } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
+import { useWebSocket } from '../services/ws';
+import { Chatroom as ChatroomType, Message } from '../types/index';
+import { MessageList } from '../components/MessageList';
 
 export const Chatroom: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [chatroom, setChatroom] = useState<{ id: string; name: string } | null>(null);
+  const { user } = useAuth();
+  const [chatroom, setChatroom] = useState<ChatroomType | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [newName, setNewName] = useState<string>('');
   const [error, setError] = useState<string>('');
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState<string>('');
+
+  const handleMessage = useCallback((message: any) => {
+    if (message.type === 'joinSuccess' && message.messages) {
+      setMessages(message.messages.reverse());
+    } else if (message.type === 'message' && message.message) {
+      setMessages((prevMessages) => [...prevMessages, message.message]);
+    }
+  }, []);
+
+  const { sendMessage } = useWebSocket(id || '', handleMessage);
 
   useEffect(() => {
     const fetchChatroom = async () => {
@@ -65,6 +82,14 @@ export const Chatroom: React.FC = () => {
     }
   };
 
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newMessage.trim() && user) {
+      sendMessage(newMessage.trim());
+      setNewMessage('');
+    }
+  };
+
   if (!chatroom) {
     return <div>Loading...</div>;
   }
@@ -94,9 +119,19 @@ export const Chatroom: React.FC = () => {
             </>
           )}
         </div>
-        <div>
-          <p>Welcome to {chatroom.name}!</p>
+        <div className="chatroom-messages">
+          <MessageList messages={messages} />
         </div>
+        <form onSubmit={handleSendMessage} className="message-input-form">
+          <input
+            type="text"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Type your message..."
+            required
+          />
+          <button type="submit">Send</button>
+        </form>
         {error && <div className="error-message">{error}</div>}
       </div>
     </div>

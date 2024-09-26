@@ -12,7 +12,11 @@ const PrivateRoute: React.FC<React.PropsWithChildren<{ path: string }>> = ({ chi
   return user ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
-// TODO: Create websocket client to handle chatrooms
+// TODO: Redirect to new room when creating one
+// TODO: Refresh token
+// TODO: Display joining and leaving messages
+// ? How can I make the loading smoother?
+// ? Stream changes in chatroom lists/current room?
 const App: React.FC = () => {
   return (
     <AuthProvider>
