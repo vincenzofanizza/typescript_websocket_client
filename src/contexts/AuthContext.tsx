@@ -4,6 +4,7 @@ import { User as SupabaseUser } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: SupabaseUser | null;
+  loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -13,21 +14,32 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    const initializeAuth = async () => {
+      const token = localStorage.getItem('authToken');
+      if (token && !user) {
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-      // Fetch user data using the token
-      api.get('/users/me').then(response => {
-        setUser(response.data);
-      }).catch(() => {
+        try {
+          const response = await api.get('/auth/me');
+          setUser(response.data);
+        } catch (error) {
+          console.error('Failed to fetch user data:', error);
+          setUser(null);
+          localStorage.removeItem('authToken');
+          delete api.defaults.headers.common['Authorization'];
+        }
+      } else if (!token) {
         setUser(null);
-        localStorage.removeItem('authToken');
-      });
-    }
-  }, []);
+        delete api.defaults.headers.common['Authorization'];
+      }
+      setLoading(false);
+    };
+
+    initializeAuth();
+  }, [user]);
 
   const login = async (email: string, password: string) => {
     const { user, session } = await apiLogin(email, password);
@@ -49,7 +61,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { fetchChatrooms, createChatroom, deleteChatroom } from '../services/api';
+import { fetchChatrooms, createChatroom } from '../services/api';
 import { Chatroom } from '../types/index';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
 export const Sidebar: React.FC = () => {
@@ -11,7 +11,6 @@ export const Sidebar: React.FC = () => {
   const [error, setError] = useState<string>('');
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const { id: currentChatroomId } = useParams<{ id: string }>();
 
   useEffect(() => {
     fetchChatroomList();
@@ -35,26 +34,10 @@ export const Sidebar: React.FC = () => {
       const newChatroom = await createChatroom(newChatroomName);
       setChatrooms([...chatrooms, newChatroom]);
       setNewChatroomName('');
+      navigate(`/chatrooms/${newChatroom.id}`);
     } catch (error) {
       console.error('Failed to create chatroom:', error);
       setError('Failed to create chatroom. Please try again.');
-    }
-  };
-
-  const handleDeleteChatroom = async (id: string) => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this chatroom?');
-    if (!confirmDelete) return;
-
-    try {
-      await deleteChatroom(id);
-      setChatrooms(chatrooms.filter(chatroom => chatroom.id !== id));
-
-      if (id === currentChatroomId) {
-        navigate('/');
-      }
-    } catch (err) {
-      console.error('Failed to delete chatroom:', err);
-      setError('Failed to delete the chatroom. Please try again.');
     }
   };
 
@@ -85,12 +68,6 @@ export const Sidebar: React.FC = () => {
         {chatrooms.map((chatroom) => (
           <li key={chatroom.id}>
             <Link to={`/chatrooms/${chatroom.id}`}>{chatroom.name}</Link>
-            <button
-              className="delete-button"
-              onClick={() => handleDeleteChatroom(chatroom.id)}
-            >
-              Delete
-            </button>
           </li>
         ))}
       </ul>

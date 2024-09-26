@@ -42,8 +42,12 @@ export const Chatroom: React.FC = () => {
     fetchChatroom();
   }, [id]);
 
+  const isOwner = user && chatroom && user.id === chatroom.owner.supabaseId;
+
   const handleEdit = () => {
-    setIsEditing(true);
+    if (isOwner) {
+      setIsEditing(true);
+    }
   };
 
   const handleCancel = () => {
@@ -60,7 +64,10 @@ export const Chatroom: React.FC = () => {
 
     try {
       const response = await api.put(`/chatrooms/${id}`, { name: newName });
-      setChatroom(response.data);
+      setChatroom(prevChatroom => ({
+        ...prevChatroom,
+        ...response.data
+      }));
       setIsEditing(false);
       setError('');
     } catch (err) {
@@ -114,8 +121,12 @@ export const Chatroom: React.FC = () => {
           ) : (
             <>
               <h2>{chatroom.name}</h2>
-              <button onClick={handleEdit} className="edit-button">Edit</button>
-              <button onClick={handleDelete} className="delete-button">Delete</button>
+              {isOwner && (
+                <>
+                  <button onClick={handleEdit} className="edit-button">Edit</button>
+                  <button onClick={handleDelete} className="delete-button">Delete</button>
+                </>
+              )}
             </>
           )}
         </div>

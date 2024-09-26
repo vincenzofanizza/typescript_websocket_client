@@ -8,14 +8,17 @@ import { Chatroom } from './pages/Chatroom';
 import './App.css';
 
 const PrivateRoute: React.FC<React.PropsWithChildren<{ path: string }>> = ({ children }) => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  
   return user ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
-// TODO: Redirect to new room when creating one
 // TODO: Refresh token
 // TODO: Display joining and leaving messages
-// ? How can I make the loading smoother?
 // ? Stream changes in chatroom lists/current room?
 const App: React.FC = () => {
   return (
