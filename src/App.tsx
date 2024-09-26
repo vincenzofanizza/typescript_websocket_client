@@ -17,8 +17,7 @@ const PrivateRoute: React.FC<React.PropsWithChildren<{ path: string }>> = ({ chi
   return user ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
-// TODO: Refresh token
-// TODO: Display joining and leaving messages
+// ? Display joining and leaving messages?
 // ? Stream changes in chatroom lists/current room?
 const App: React.FC = () => {
   return (

@@ -24,7 +24,14 @@ export const AuthProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }
 
         try {
           const response = await api.get('/auth/me');
-          setUser(response.data);
+          setUser(response.data.user);
+          
+          // Check if a new session was returned (token was refreshed)
+          if (response.data.session) {
+            const newToken = response.data.session.access_token;
+            localStorage.setItem('authToken', newToken);
+            api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+          }
         } catch (error) {
           console.error('Failed to fetch user data:', error);
           setUser(null);
