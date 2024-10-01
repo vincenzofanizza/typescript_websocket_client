@@ -1,7 +1,7 @@
 import { useAuth } from '../contexts/AuthContext';
 import { useEffect, useRef } from 'react';
 
-const WS_URL = 'ws://localhost:8080';
+const WS_URL = process.env.REACT_APP_WS_URL || 'ws://localhost:8080';
 
 interface WebSocketMessage {
   type: string;

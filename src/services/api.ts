@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Chatroom } from '../types/index';
 
-const API_URL = 'http://localhost:8080';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
 export const api = axios.create({
   baseURL: API_URL,
