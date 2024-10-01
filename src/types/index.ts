@@ -18,6 +18,6 @@ export interface Message {
     content: string;
     createdAt: string;
     updatedAt: string;
-    sentBy: User;
+    sentBy?: User;
     chatRoomId: string;
 }

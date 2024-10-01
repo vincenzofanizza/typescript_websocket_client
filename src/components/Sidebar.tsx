@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { fetchChatrooms, createChatroom } from '../services/api';
 import { Chatroom } from '../types/index';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-
+import { EventEmitter } from '../utils/EventEmitter';
 export const Sidebar: React.FC = () => {
   const [chatrooms, setChatrooms] = useState<Chatroom[]>([]);
   const [newChatroomName, setNewChatroomName] = useState('');
@@ -12,11 +12,7 @@ export const Sidebar: React.FC = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchChatroomList();
-  }, []);
-
-  const fetchChatroomList = async () => {
+  const fetchChatroomList = useCallback(async () => {
     try {
       const data = await fetchChatrooms();
       setChatrooms(data);
@@ -24,7 +20,26 @@ export const Sidebar: React.FC = () => {
       console.error('Failed to fetch chatrooms:', error);
       setError('Failed to fetch chatrooms. Please try again.');
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchChatroomList();
+
+    // Set up polling interval
+    const intervalId = setInterval(fetchChatroomList, 3000); // Poll every 3 seconds
+
+    // Listen for chatroomUpdated event
+    const handleChatroomUpdate = () => {
+      fetchChatroomList();
+    };
+    EventEmitter.on('chatroomUpdated', handleChatroomUpdate);
+
+    // Clean up interval and event listener on component unmount
+    return () => {
+      clearInterval(intervalId);
+      EventEmitter.off('chatroomUpdated', handleChatroomUpdate);
+    };
+  }, [fetchChatroomList]);
 
   const handleCreateChatroom = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +47,7 @@ export const Sidebar: React.FC = () => {
 
     try {
       const newChatroom = await createChatroom(newChatroomName);
-      setChatrooms([...chatrooms, newChatroom]);
+      await fetchChatroomList();
       setNewChatroomName('');
       navigate(`/chatrooms/${newChatroom.id}`);
     } catch (error) {

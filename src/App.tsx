@@ -17,8 +17,8 @@ const PrivateRoute: React.FC<React.PropsWithChildren<{ path: string }>> = ({ chi
   return user ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
-// ? Display joining and leaving messages?
-// ? Stream changes in chatroom lists/current room?
+// TODO: Display popups for errors
+// TODO: Prevent user from logging in as two different users
 const App: React.FC = () => {
   return (
     <AuthProvider>

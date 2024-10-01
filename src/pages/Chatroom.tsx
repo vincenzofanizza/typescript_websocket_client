@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import { api } from '../services/api';
@@ -6,7 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useWebSocket } from '../services/ws';
 import { Chatroom as ChatroomType, Message } from '../types/index';
 import { MessageList } from '../components/MessageList';
-
+import { EventEmitter } from '../utils/EventEmitter';
 export const Chatroom: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -17,6 +17,7 @@ export const Chatroom: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
+  const intervalRef = useRef<number | null>(null);
 
   const handleMessage = useCallback((message: any) => {
     if (message.type === 'joinSuccess' && message.messages) {
@@ -28,25 +29,42 @@ export const Chatroom: React.FC = () => {
 
   const { sendMessage } = useWebSocket(id || '', handleMessage);
 
-  useEffect(() => {
-    const fetchChatroom = async () => {
-      try {
-        const response = await api.get(`/chatrooms/${id}`);
-        setChatroom(response.data);
+  const fetchChatroom = useCallback(async () => {
+    if (isEditing) return; // Skip fetching if editing
+    try {
+      const response = await api.get(`/chatrooms/${id}`);
+      setChatroom(response.data);
+      if (!isEditing) {
         setNewName(response.data.name);
-      } catch (err) {
-        console.error('Failed to fetch chatroom:', err);
+      }
+    } catch (err) {
+      console.error('Failed to fetch chatroom:', err);
+      navigate('/');
+    }
+  }, [id, navigate, isEditing]);
+
+  useEffect(() => {
+    fetchChatroom();
+
+    if (!isEditing) {
+      intervalRef.current = window.setInterval(fetchChatroom, 3000);
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
       }
     };
-
-    fetchChatroom();
-  }, [id]);
+  }, [fetchChatroom, isEditing]);
 
   const isOwner = user && chatroom && user.id === chatroom.owner.supabaseId;
 
   const handleEdit = () => {
     if (isOwner) {
       setIsEditing(true);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
     }
   };
 
@@ -70,6 +88,10 @@ export const Chatroom: React.FC = () => {
       }));
       setIsEditing(false);
       setError('');
+      // Emit an event to notify that a chatroom has been updated
+      EventEmitter.emit('chatroomUpdated');
+      // Resume polling after saving
+      intervalRef.current = window.setInterval(fetchChatroom, 3000);
     } catch (err) {
       console.error('Failed to update chatroom:', err);
       setError('Failed to update chatroom name. Please try again.');
