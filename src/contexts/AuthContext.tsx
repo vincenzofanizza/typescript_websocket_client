@@ -35,7 +35,6 @@ export const AuthProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }
           }
         } catch (error) {
           console.error('Failed to fetch user data:', error);
-          toast.error('Session expired. Please log in again.');
           setUser(null);
           localStorage.removeItem('authToken');
           delete api.defaults.headers.common['Authorization'];
@@ -56,7 +55,6 @@ export const AuthProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }
       setUser(user);
       localStorage.setItem('authToken', session.access_token);
       api.defaults.headers.common['Authorization'] = `Bearer ${session.access_token}`;
-      toast.success('Logged in successfully!');
     } catch (error) {
       console.error('Login failed:', error);
       toast.error('Login failed. Please check your credentials and try again.');
@@ -82,7 +80,6 @@ export const AuthProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }
       setUser(null);
       localStorage.removeItem('authToken');
       delete api.defaults.headers.common['Authorization'];
-      toast.success('Logged out successfully.');
     } catch (error) {
       console.error('Logout failed:', error);
       toast.error('Logout failed. Please try again.');

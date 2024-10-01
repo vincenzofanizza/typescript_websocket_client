@@ -316,27 +316,27 @@
 
 .Toastify__toast {
   background-color: white;
-  color: #333;
+  color: black; 
   border: 1px solid #ddd;
   border-radius: 5px;
 }
 
 .Toastify__toast--error {
-  color: #e74c3c;
+  color: black; 
 }
 
 .Toastify__toast--success {
-  color: #28a745;
+  color: black; 
 }
 
 .Toastify__toast--warning {
-  color: #ffc107;
+  color: black; 
 }
 
 .Toastify__toast--info {
-  color: #17a2b8;
+  color: black; 
 }
 
 .Toastify__close-button {
-  color: #333;
+  color: black; 
 }

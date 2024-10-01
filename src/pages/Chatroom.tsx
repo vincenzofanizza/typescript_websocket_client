@@ -25,7 +25,6 @@ export const Chatroom: React.FC = () => {
       setMessages(message.messages.reverse());
     } else if (message.type === 'message' && message.message) {
       setMessages((prevMessages) => [...prevMessages, message.message]);
-      toast.info('New message received');
     }
   }, []);
 
@@ -41,7 +40,6 @@ export const Chatroom: React.FC = () => {
       }
     } catch (err) {
       console.error('Failed to fetch chatroom:', err);
-      toast.error('Failed to fetch chatroom. Redirecting to home.');
       navigate('/');
     }
   }, [id, navigate, isEditing]);
@@ -89,7 +87,7 @@ export const Chatroom: React.FC = () => {
         ...response.data
       }));
       setIsEditing(false);
-      toast.success('Chatroom name updated successfully!');
+
       // Emit an event to notify that a chatroom has been updated
       EventEmitter.emit('chatroomUpdated');
       // Resume polling after saving
@@ -106,7 +104,7 @@ export const Chatroom: React.FC = () => {
 
     try {
       await api.delete(`/chatrooms/${id}`);
-      toast.success('Chatroom deleted successfully.');
+      toast.info('Chatroom deleted.');
       navigate('/');
     } catch (err) {
       console.error('Failed to delete chatroom:', err);
@@ -119,7 +117,6 @@ export const Chatroom: React.FC = () => {
     if (newMessage.trim() && user) {
       sendMessage(newMessage.trim());
       setNewMessage('');
-      toast.success('Message sent!');
     }
   };
 

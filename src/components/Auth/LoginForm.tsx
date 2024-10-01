@@ -13,7 +13,6 @@ export const LoginForm: React.FC = () => {
     e.preventDefault();
     try {
       await login(email, password);
-      toast.success('Logged in successfully!');
       navigate('/');
     } catch (error) {
       toast.error('Login failed. Please check your credentials and try again.');

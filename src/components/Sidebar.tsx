@@ -19,7 +19,6 @@ export const Sidebar: React.FC = () => {
       setChatrooms(data);
     } catch (error) {
       console.error('Failed to fetch chatrooms:', error);
-      toast.error('Failed to fetch chatrooms. Please try again.');
     }
   }, []);
 
@@ -53,7 +52,6 @@ export const Sidebar: React.FC = () => {
       const newChatroom = await createChatroom(newChatroomName);
       await fetchChatroomList();
       setNewChatroomName('');
-      toast.success('Chatroom created successfully!');
       navigate(`/chatrooms/${newChatroom.id}`);
     } catch (error) {
       console.error('Failed to create chatroom:', error);
@@ -64,11 +62,9 @@ export const Sidebar: React.FC = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      toast.success('Logged out successfully.');
       navigate('/login');
     } catch (error) {
       console.error('Logout failed:', error);
-      toast.error('Logout failed. Please try again.');
     }
   };
 
