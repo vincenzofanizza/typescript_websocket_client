@@ -1,24 +1,24 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 export const SignupForm: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
   const { signup } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage('');
     try {
       await signup(email, password, firstName, lastName);
+      toast.success('Account created successfully!');
       navigate('/');
     } catch (error) {
-      setErrorMessage('Signup failed. Please check your details and try again.');
+      toast.error('Signup failed. Please check your details and try again.');
       console.error('Signup failed:', error);
     }
   };
@@ -26,7 +26,6 @@ export const SignupForm: React.FC = () => {
   return (
     <form onSubmit={handleSubmit} className="auth-form">
       <h2>Sign Up</h2>
-      {errorMessage && <div className="error-message">{errorMessage}</div>}
       <input
         type="text"
         value={firstName}

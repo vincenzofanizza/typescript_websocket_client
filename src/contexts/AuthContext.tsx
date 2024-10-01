@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { api, login as apiLogin, signup as apiSignup, logout as apiLogout } from '../services/api';
 import { User as SupabaseUser } from '@supabase/supabase-js';
+import { toast } from 'react-toastify';
 
 interface AuthContextType {
   user: SupabaseUser | null;
@@ -34,6 +35,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }
           }
         } catch (error) {
           console.error('Failed to fetch user data:', error);
+          toast.error('Session expired. Please log in again.');
           setUser(null);
           localStorage.removeItem('authToken');
           delete api.defaults.headers.common['Authorization'];
@@ -49,22 +51,43 @@ export const AuthProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }
   }, [user]);
 
   const login = async (email: string, password: string) => {
-    const { user, session } = await apiLogin(email, password);
-    setUser(user);
-    localStorage.setItem('authToken', session.access_token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${session.access_token}`;
+    try {
+      const { user, session } = await apiLogin(email, password);
+      setUser(user);
+      localStorage.setItem('authToken', session.access_token);
+      api.defaults.headers.common['Authorization'] = `Bearer ${session.access_token}`;
+      toast.success('Logged in successfully!');
+    } catch (error) {
+      console.error('Login failed:', error);
+      toast.error('Login failed. Please check your credentials and try again.');
+      throw error;
+    }
   };
 
   const signup = async (email: string, password: string, firstName: string, lastName: string) => {
-    await apiSignup(email, password, firstName, lastName);
-    await login(email, password);
+    try {
+      await apiSignup(email, password, firstName, lastName);
+      toast.success('Account created successfully!');
+      await login(email, password);
+    } catch (error) {
+      console.error('Signup failed:', error);
+      toast.error('Signup failed. Please check your details and try again.');
+      throw error;
+    }
   };
 
   const logout = async () => {
-    await apiLogout();
-    setUser(null);
-    localStorage.removeItem('authToken');
-    delete api.defaults.headers.common['Authorization'];
+    try {
+      await apiLogout();
+      setUser(null);
+      localStorage.removeItem('authToken');
+      delete api.defaults.headers.common['Authorization'];
+      toast.success('Logged out successfully.');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      toast.error('Logout failed. Please try again.');
+      throw error;
+    }
   };
 
   return (

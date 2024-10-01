@@ -7,6 +7,8 @@ import { useWebSocket } from '../services/ws';
 import { Chatroom as ChatroomType, Message } from '../types/index';
 import { MessageList } from '../components/MessageList';
 import { EventEmitter } from '../utils/EventEmitter';
+import { toast } from 'react-toastify';
+
 export const Chatroom: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -14,7 +16,6 @@ export const Chatroom: React.FC = () => {
   const [chatroom, setChatroom] = useState<ChatroomType | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [newName, setNewName] = useState<string>('');
-  const [error, setError] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
   const intervalRef = useRef<number | null>(null);
@@ -24,6 +25,7 @@ export const Chatroom: React.FC = () => {
       setMessages(message.messages.reverse());
     } else if (message.type === 'message' && message.message) {
       setMessages((prevMessages) => [...prevMessages, message.message]);
+      toast.info('New message received');
     }
   }, []);
 
@@ -39,6 +41,7 @@ export const Chatroom: React.FC = () => {
       }
     } catch (err) {
       console.error('Failed to fetch chatroom:', err);
+      toast.error('Failed to fetch chatroom. Redirecting to home.');
       navigate('/');
     }
   }, [id, navigate, isEditing]);
@@ -71,12 +74,11 @@ export const Chatroom: React.FC = () => {
   const handleCancel = () => {
     setNewName(chatroom?.name || '');
     setIsEditing(false);
-    setError('');
   };
 
   const handleSave = async () => {
     if (!newName.trim()) {
-      setError('Chatroom name cannot be empty.');
+      toast.error('Chatroom name cannot be empty.');
       return;
     }
 
@@ -87,14 +89,14 @@ export const Chatroom: React.FC = () => {
         ...response.data
       }));
       setIsEditing(false);
-      setError('');
+      toast.success('Chatroom name updated successfully!');
       // Emit an event to notify that a chatroom has been updated
       EventEmitter.emit('chatroomUpdated');
       // Resume polling after saving
       intervalRef.current = window.setInterval(fetchChatroom, 3000);
     } catch (err) {
       console.error('Failed to update chatroom:', err);
-      setError('Failed to update chatroom name. Please try again.');
+      toast.error('Failed to update chatroom name. Please try again.');
     }
   };
 
@@ -104,10 +106,11 @@ export const Chatroom: React.FC = () => {
 
     try {
       await api.delete(`/chatrooms/${id}`);
+      toast.success('Chatroom deleted successfully.');
       navigate('/');
     } catch (err) {
       console.error('Failed to delete chatroom:', err);
-      setError('Failed to delete chatroom. Please try again.');
+      toast.error('Failed to delete chatroom. Please try again.');
     }
   };
 
@@ -116,6 +119,7 @@ export const Chatroom: React.FC = () => {
     if (newMessage.trim() && user) {
       sendMessage(newMessage.trim());
       setNewMessage('');
+      toast.success('Message sent!');
     }
   };
 
@@ -138,7 +142,6 @@ export const Chatroom: React.FC = () => {
               />
               <button onClick={handleSave} className="save-button">Save</button>
               <button onClick={handleCancel} className="cancel-button">Cancel</button>
-              {error && <div className="error-message">{error}</div>}
             </>
           ) : (
             <>
@@ -165,7 +168,6 @@ export const Chatroom: React.FC = () => {
           />
           <button type="submit">Send</button>
         </form>
-        {error && <div className="error-message">{error}</div>}
       </div>
     </div>
   );

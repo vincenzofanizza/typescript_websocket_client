@@ -5,11 +5,12 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { EventEmitter } from '../utils/EventEmitter';
+import { toast } from 'react-toastify';
+
 export const Sidebar: React.FC = () => {
   const [chatrooms, setChatrooms] = useState<Chatroom[]>([]);
   const [newChatroomName, setNewChatroomName] = useState('');
-  const [error, setError] = useState<string>('');
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
 
   const fetchChatroomList = useCallback(async () => {
@@ -18,7 +19,7 @@ export const Sidebar: React.FC = () => {
       setChatrooms(data);
     } catch (error) {
       console.error('Failed to fetch chatrooms:', error);
-      setError('Failed to fetch chatrooms. Please try again.');
+      toast.error('Failed to fetch chatrooms. Please try again.');
     }
   }, []);
 
@@ -43,33 +44,37 @@ export const Sidebar: React.FC = () => {
 
   const handleCreateChatroom = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newChatroomName.trim()) return;
+    if (!newChatroomName.trim()) {
+      toast.error('Chatroom name cannot be empty.');
+      return;
+    }
 
     try {
       const newChatroom = await createChatroom(newChatroomName);
       await fetchChatroomList();
       setNewChatroomName('');
+      toast.success('Chatroom created successfully!');
       navigate(`/chatrooms/${newChatroom.id}`);
     } catch (error) {
       console.error('Failed to create chatroom:', error);
-      setError('Failed to create chatroom. Please try again.');
+      toast.error('Failed to create chatroom. Please try again.');
     }
   };
 
   const handleLogout = async () => {
     try {
       await logout();
+      toast.success('Logged out successfully.');
       navigate('/login');
     } catch (error) {
       console.error('Logout failed:', error);
-      setError('Logout failed. Please try again.');
+      toast.error('Logout failed. Please try again.');
     }
   };
 
   return (
     <div className="sidebar">
       <h2>Chatrooms</h2>
-      {error && <div className="error-message">{error}</div>}
       <form onSubmit={handleCreateChatroom}>
         <input
           type="text"
@@ -86,6 +91,17 @@ export const Sidebar: React.FC = () => {
           </li>
         ))}
       </ul>
+      
+      <div className="user-details">
+        {user ? (
+          <>
+            <p>Email: {user.email}</p>
+          </>
+        ) : (
+          <p>No user information available</p>
+        )}
+      </div>
+      
       <button onClick={handleLogout}>Logout</button>
     </div>
   );

@@ -5,6 +5,8 @@ import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { Home } from './pages/Home';
 import { Chatroom } from './pages/Chatroom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 
 const PrivateRoute: React.FC<React.PropsWithChildren<{ path: string }>> = ({ children }) => {
@@ -17,8 +19,6 @@ const PrivateRoute: React.FC<React.PropsWithChildren<{ path: string }>> = ({ chi
   return user ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
-// TODO: Display popups for errors
-// TODO: Prevent user from logging in as two different users
 const App: React.FC = () => {
   return (
     <AuthProvider>
@@ -43,6 +43,17 @@ const App: React.FC = () => {
             }
           />
         </Routes>
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
       </Router>
     </AuthProvider>
   );

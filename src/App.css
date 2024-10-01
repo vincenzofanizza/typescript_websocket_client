@@ -308,3 +308,35 @@
   padding: 10px 20px;
   font-size: 16px;
 }
+
+/* React-Toastify Styles */
+.Toastify__toast-container {
+  z-index: 9999;
+}
+
+.Toastify__toast {
+  background-color: white;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.Toastify__toast--error {
+  color: #e74c3c;
+}
+
+.Toastify__toast--success {
+  color: #28a745;
+}
+
+.Toastify__toast--warning {
+  color: #ffc107;
+}
+
+.Toastify__toast--info {
+  color: #17a2b8;
+}
+
+.Toastify__close-button {
+  color: #333;
+}

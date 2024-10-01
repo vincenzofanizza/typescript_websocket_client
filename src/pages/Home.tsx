@@ -6,7 +6,8 @@ export const Home: React.FC = () => {
     <div className="home-container">
       <Sidebar />
       <div className="main-content">
-        <h1>Home</h1>
+        <h1>Welcome!</h1>
+        <p>Select a chatroom from the sidebar or create a new one to get started.</p>
       </div>
     </div>
   );
