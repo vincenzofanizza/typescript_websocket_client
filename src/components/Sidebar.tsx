@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { fetchChatrooms, createChatroom } from '../services/api';
 import { Chatroom } from '../types/index';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { EventEmitter } from '../utils/EventEmitter';
 import { toast } from 'react-toastify';
 
@@ -12,6 +11,16 @@ export const Sidebar: React.FC = () => {
   const [newChatroomName, setNewChatroomName] = useState('');
   const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const [isResizing, setIsResizing] = useState(false);
+  const [width, setWidth] = useState(280);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  // Ref to store the latest width without causing re-renders
+  const widthRef = useRef(width);
+  widthRef.current = width;
+
+  // Ref for animation frame
+  const animationFrameRef = useRef<number | null>(null);
 
   const fetchChatroomList = useCallback(async () => {
     try {
@@ -21,6 +30,55 @@ export const Sidebar: React.FC = () => {
       console.error('Failed to fetch chatrooms:', error);
     }
   }, []);
+
+  const startResizing = useCallback((mouseDownEvent: React.MouseEvent) => {
+    mouseDownEvent.preventDefault();
+    setIsResizing(true);
+  }, []);
+
+  const stopResizing = useCallback(() => {
+    setIsResizing(false);
+    // Re-enable transitions after resizing
+    if (sidebarRef.current) {
+      sidebarRef.current.style.transition = 'width 0.3s ease';
+    }
+  }, []);
+
+  const resize = useCallback((mouseMoveEvent: MouseEvent) => {
+    if (sidebarRef.current) {
+      const newWidth = mouseMoveEvent.clientX - sidebarRef.current.getBoundingClientRect().left;
+      if (newWidth >= 200 && newWidth <= 600) {
+        widthRef.current = newWidth;
+
+        // If an animation frame is not already requested, request one
+        if (animationFrameRef.current === null) {
+          animationFrameRef.current = window.requestAnimationFrame(() => {
+            setWidth(widthRef.current);
+            animationFrameRef.current = null;
+          });
+        }
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isResizing) {
+      // Disable transitions during resizing for immediate response
+      if (sidebarRef.current) {
+        sidebarRef.current.style.transition = 'none';
+      }
+      window.addEventListener('mousemove', resize);
+      window.addEventListener('mouseup', stopResizing);
+    }
+    return () => {
+      window.removeEventListener('mousemove', resize);
+      window.removeEventListener('mouseup', stopResizing);
+      if (animationFrameRef.current) {
+        window.cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+    };
+  }, [isResizing, resize, stopResizing]);
 
   useEffect(() => {
     fetchChatroomList();
@@ -69,8 +127,15 @@ export const Sidebar: React.FC = () => {
   };
 
   return (
-    <div className="sidebar">
-      <h2>Chatrooms</h2>
+    <div
+      className="sidebar"
+      ref={sidebarRef}
+      style={{ width: `${width}px` }}
+    >
+      <div className="sidebar-header">
+        <h2>Chatrooms</h2>
+        {user && <p className="user-email">{user.email}</p>}
+      </div>
       <form onSubmit={handleCreateChatroom}>
         <input
           type="text"
@@ -78,7 +143,7 @@ export const Sidebar: React.FC = () => {
           onChange={(e) => setNewChatroomName(e.target.value)}
           placeholder="New Chatroom Name"
         />
-        <button type="submit">Create</button>
+        <button type="submit">Create Chatroom</button>
       </form>
       <ul>
         {chatrooms.map((chatroom) => (
@@ -87,18 +152,11 @@ export const Sidebar: React.FC = () => {
           </li>
         ))}
       </ul>
-      
-      <div className="user-details">
-        {user ? (
-          <>
-            <p>Email: {user.email}</p>
-          </>
-        ) : (
-          <p>No user information available</p>
-        )}
+      <div className="sidebar-footer">
+        <Link to="/" className="home-link">Home</Link>
+        <button className="logout-button" onClick={handleLogout}>Logout</button>
       </div>
-      
-      <button onClick={handleLogout}>Logout</button>
+      <div className="sidebar-resizer" onMouseDown={startResizing}></div>
     </div>
   );
 };
