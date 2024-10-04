@@ -1,46 +1,97 @@
-# Getting Started with Create React App
+# TypeScript WebSocket Client
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Introduction
 
-## Available Scripts
+TypeScript WebSocket Client is a real-time chat application built with React and TypeScript. It leverages WebSockets for seamless, bi-directional communication, allowing users to create and participate in chatrooms. The application integrates with Supabase for authentication, ensuring secure and efficient user management.
 
-In the project directory, you can run:
+The backend for this application can be found at: [https://github.com/vincenzofanizza/typescript_websocket_server.git](https://github.com/vincenzofanizza/typescript_websocket_server.git)
 
-### `npm start`
+## Live Demo
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+The app is available at: [https://typescript-websocket-client.vercel.app](https://typescript-websocket-client.vercel.app)
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Getting Started
 
-### `npm test`
+Follow these instructions to set up and run the project locally.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Prerequisites
 
-### `npm run build`
+Ensure you have the following installed on your machine:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- **Node.js** (v14 or higher)
+- **npm** or **yarn**
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Installation
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. **Clone the repository:**
 
-### `npm run eject`
+   ```bash
+   git clone https://github.com/yourusername/typescript_websocket_client.git
+   ```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+2. **Navigate to the project directory:**
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+   ```bash
+   cd typescript_websocket_client
+   ```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+3. **Install dependencies:**
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+   Using npm:
 
-## Learn More
+   ```bash
+   npm install
+   ```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+   Using yarn:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+   ```bash
+   yarn install
+   ```
+
+### Configuration
+
+1. **Create a `.env` file in the root directory and add the following:**
+
+   ```env
+   REACT_APP_API_URL=http://localhost:8080
+   REACT_APP_WS_URL=ws://localhost:8080
+   ```
+
+   Adjust the URLs according to your backend server's configuration.
+
+### Running the Application
+
+Start the development server:
+
+Using npm:
+
+```bash
+npm start
+```
+
+Using yarn:
+
+```bash
+yarn start
+```
+
+The application will run in development mode. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+
+### Building for Production
+
+To create a production-ready build:
+
+Using npm:
+
+```bash
+npm run build
+```
+
+Using yarn:
+
+```bash
+yarn build
+```
+
+This will bundle the app into the `build` folder for deployment.
