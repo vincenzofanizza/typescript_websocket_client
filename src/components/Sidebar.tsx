@@ -15,13 +15,6 @@ export const Sidebar: React.FC = () => {
   const [width, setWidth] = useState(280);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
-  // Ref to store the latest width without causing re-renders
-  const widthRef = useRef(width);
-  widthRef.current = width;
-
-  // Ref for animation frame
-  const animationFrameRef = useRef<number | null>(null);
-
   const fetchChatroomList = useCallback(async () => {
     try {
       const data = await fetchChatrooms();
@@ -38,47 +31,16 @@ export const Sidebar: React.FC = () => {
 
   const stopResizing = useCallback(() => {
     setIsResizing(false);
-    // Re-enable transitions after resizing
-    if (sidebarRef.current) {
-      sidebarRef.current.style.transition = 'width 0.3s ease';
-    }
   }, []);
 
   const resize = useCallback((mouseMoveEvent: MouseEvent) => {
-    if (sidebarRef.current) {
+    if (isResizing && sidebarRef.current) {
       const newWidth = mouseMoveEvent.clientX - sidebarRef.current.getBoundingClientRect().left;
       if (newWidth >= 200 && newWidth <= 600) {
-        widthRef.current = newWidth;
-
-        // If an animation frame is not already requested, request one
-        if (animationFrameRef.current === null) {
-          animationFrameRef.current = window.requestAnimationFrame(() => {
-            setWidth(widthRef.current);
-            animationFrameRef.current = null;
-          });
-        }
+        setWidth(newWidth);
       }
     }
-  }, []);
-
-  useEffect(() => {
-    if (isResizing) {
-      // Disable transitions during resizing for immediate response
-      if (sidebarRef.current) {
-        sidebarRef.current.style.transition = 'none';
-      }
-      window.addEventListener('mousemove', resize);
-      window.addEventListener('mouseup', stopResizing);
-    }
-    return () => {
-      window.removeEventListener('mousemove', resize);
-      window.removeEventListener('mouseup', stopResizing);
-      if (animationFrameRef.current) {
-        window.cancelAnimationFrame(animationFrameRef.current);
-        animationFrameRef.current = null;
-      }
-    };
-  }, [isResizing, resize, stopResizing]);
+  }, [isResizing]);
 
   useEffect(() => {
     fetchChatroomList();
@@ -98,6 +60,17 @@ export const Sidebar: React.FC = () => {
       EventEmitter.off('chatroomUpdated', handleChatroomUpdate);
     };
   }, [fetchChatroomList]);
+
+  useEffect(() => {
+    if (isResizing) {
+      window.addEventListener('mousemove', resize);
+      window.addEventListener('mouseup', stopResizing);
+    }
+    return () => {
+      window.removeEventListener('mousemove', resize);
+      window.removeEventListener('mouseup', stopResizing);
+    };
+  }, [isResizing, resize, stopResizing]);
 
   const handleCreateChatroom = async (e: React.FormEvent) => {
     e.preventDefault();

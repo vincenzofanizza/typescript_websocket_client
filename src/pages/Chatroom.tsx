@@ -104,7 +104,6 @@ export const Chatroom: React.FC = () => {
 
     try {
       await api.delete(`/chatrooms/${id}`);
-      toast.info('Chatroom deleted.');
       navigate('/');
     } catch (err) {
       console.error('Failed to delete chatroom:', err);

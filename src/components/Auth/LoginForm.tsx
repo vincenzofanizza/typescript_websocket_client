@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
 
 export const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -15,7 +14,6 @@ export const LoginForm: React.FC = () => {
       await login(email, password);
       navigate('/');
     } catch (error) {
-      toast.error('Login failed. Please check your credentials and try again.');
       console.error('Login failed:', error);
     }
   };
