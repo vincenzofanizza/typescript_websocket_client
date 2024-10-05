@@ -10,7 +10,13 @@ export const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
     ? `${message.sentBy.firstName} ${message.sentBy.lastName}`
     : 'Deleted Account';
   const initials = senderName.split(' ').map(n => n[0]).join('').toUpperCase();
-  const timestamp = new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const timestamp = new Date(message.createdAt).toLocaleString([], {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 
   return (
     <div className="message-item">
